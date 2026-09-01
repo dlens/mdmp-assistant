@@ -256,12 +256,16 @@ Initial publish completed after v7 training. Adapter and dataset are live under 
 | Artifact | URL |
 |----------|-----|
 | LoRA adapter (Spark Unsloth v7) | https://huggingface.co/decisionlens/mistral7b-mdmp-lora |
+| LoRA adapter (Mac MLX v4) | https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx |
 | Training pairs (324 reviewed) | https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs |
 
 | Check | Result |
 |-------|--------|
 | Preflight golden (local v7) | 15/20 |
 | Post-upload golden (HF download) | 14/20 |
-| Publish tooling | `scripts/stage_hf_publish.py`, `scripts/publish_hf.sh` |
+| MLX sidecar Hub repo | https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx |
+| MLX pre-publish golden | 18/20 |
+| MLX post-upload golden | 17/20 |
+| Publish tooling | `scripts/stage_hf_publish.py`, `scripts/publish_hf.sh`, `scripts/stage_hf_publish_mlx.py`, `scripts/publish_hf_mlx.sh` |
 
-Re-publish: `./scripts/publish_hf.sh` (see [README.md](../README.md#publishing)).
+Re-publish: `./scripts/publish_hf.sh` (Unsloth) or `./scripts/publish_hf_mlx.sh` (MLX). See [README.md](../README.md#publishing).

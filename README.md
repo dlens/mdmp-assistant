@@ -4,20 +4,19 @@ Open-source fine-tuned LLM for **Military Decision-Making Process** coaching —
 
 **Disclaimer:** Unofficial educational tool. Not affiliated with the U.S. Army. Not a substitute for qualified staff planning or classified planning systems. Ground answers in FM 5-0 / ADP 5-0 and verify citations.
 
-## Sprint status
+## Progress
 
-| Milestone | Target | Status |
-|-----------|--------|--------|
-| Day 1 — corpus + 50 draft pairs + golden eval | Jul 28 | Done |
-| Data + baseline + v4 train (40% golden) | Jul 29 | Done |
-| Training data expanded to 303 pairs (harmonized) | Jul 31 | Done |
-| Sprint MVP — LoRA + demo | Aug 1 | Done (v7: 70% golden; baseline 5%) |
-| Public v0.1 — Hugging Face | Week of Aug 4 | Done (initial publish Sep 1, 2026) |
+- [x] Corpus + 50 draft pairs + golden eval
+- [x] Data + baseline + v4 train (40% golden)
+- [x] Training data expanded to 303 pairs (harmonized)
+- [x] MVP — LoRA + demo (v7: 70% golden; baseline 5%)
+- [x] Public v0.1 — Hugging Face
 
-**Hugging Face** (initial publish Sep 1, 2026 — Spark Unsloth v7 adapter, 324 reviewed pairs, post-upload golden 14/20):
+**Hugging Face** (Unsloth v7 Sep 1, 2026; MLX sidecar for Mac download without training):
 
 - **Quick start (inference only):** [docs/hf-quick-start.md](docs/hf-quick-start.md)
-- Model: [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)
+- GPU model: [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)
+- Mac MLX model: [decisionlens/mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx)
 - Dataset: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs)
 
 **Sprint 1 summary:** [eval/sprint1-summary.md](eval/sprint1-summary.md)
@@ -35,10 +34,10 @@ corpus/doctrine/     Public MDMP reference markdown
 corpus/scenarios/    Fictional training scenarios
 data/                pairs.jsonl (source of truth), train.jsonl, eval.jsonl
 eval/                golden_questions.json, run_golden.py, run_golden_mlx.py, reports/
-scripts/             split_data.py, export_mlx_data.py, generate_pairs.py, leak_review.py, copy_clean_check.py, stage_hf_publish.py, publish_hf.sh
+scripts/             split_data.py, export_mlx_data.py, generate_pairs.py, leak_review.py, copy_clean_check.py, stage_hf_publish.py, publish_hf.sh, stage_hf_publish_mlx.py, publish_hf_mlx.sh
 train/               config.yaml, finetune.py, formatting.py, inference.py, mlx_config.yaml, mlx_inference.py
-demo/                ask.py — CLI chat demo
-docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md; hf-model-card.md; hf-dataset-card.md; hf-quick-start.md
+demo/                ask.py (CLI), chat_gradio.py (browser); GPU or MLX via --backend
+docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md; hf-model-card.md; hf-model-card-mlx.md; hf-dataset-card.md; hf-quick-start.md
 ```
 
 ## Data workflow
@@ -88,7 +87,7 @@ Reports land in `eval/reports/`. Latest: **v7 — 14/20 (70%)** vs baseline **1/
 
 Apple Silicon QLoRA via `mlx-lm`. Does **not** replace Spark Unsloth (`train/finetune.py`). Adapters are not interchangeable. Use a separate venv from `requirements-ml.txt`.
 
-Spark Unsloth remains the publish path. Mac golden (same 20 questions):
+Spark Unsloth remains the **GPU** publish path. The MLX adapter is a separate Hub repo for Mac download without training. Mac golden (same 20 questions):
 
 | Run | Notes | Golden |
 |-----|--------|--------|
@@ -121,13 +120,29 @@ Hyperparameters live in `train/mlx_config.yaml`. Export writes `data/mlx/train.j
 
 ## Demo
 
+`--backend` is `gpu` (Unsloth / NVIDIA) or `mlx` (Apple Silicon). Omit it to auto-detect: Apple Silicon → `mlx`, `nvidia-smi` present → `gpu`. Adapters are not interchangeable. Use separate venvs (`requirements-ml.txt` vs `requirements-mlx.txt`).
+
 ```bash
+# NVIDIA GPU (Unsloth)
 export TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas
-python demo/ask.py                    # fine-tuned adapter
-python demo/ask.py --base               # base Mistral-7B (no adapter)
+python demo/ask.py                         # fine-tuned adapter
+python demo/ask.py --base                  # base Mistral-7B (no adapter)
+python demo/ask.py --backend gpu           # force GPU stack
+
+# Apple Silicon (MLX) — different weights; download instead of training
+hf download decisionlens/mistral7b-mdmp-lora-mlx --local-dir outputs/mlx-mistral7b-mdmp-lora-v4
+python demo/ask.py --backend mlx
 ```
 
 Type a question at the `You:` prompt; empty line or Ctrl+D to quit.
+
+Browser chat (same backends; install Gradio in the active venv):
+
+```bash
+pip install gradio
+python demo/chat_gradio.py                 # auto-detect gpu vs mlx
+python demo/chat_gradio.py --backend mlx
+```
 
 ## Download from Hugging Face
 
@@ -135,23 +150,29 @@ See **[docs/hf-quick-start.md](docs/hf-quick-start.md)** for the full inference-
 
 ```bash
 pip install huggingface_hub
-hf download decisionlens/mistral7b-mdmp-lora --local-dir outputs/mistral7b-mdmp-lora
 
+# NVIDIA (Unsloth)
+hf download decisionlens/mistral7b-mdmp-lora --local-dir outputs/mistral7b-mdmp-lora
 export TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas
-python demo/ask.py --adapter outputs/mistral7b-mdmp-lora
+python demo/ask.py --backend gpu --adapter outputs/mistral7b-mdmp-lora
+
+# Apple Silicon (MLX) — not the Unsloth adapter
+hf download decisionlens/mistral7b-mdmp-lora-mlx --local-dir outputs/mlx-mistral7b-mdmp-lora-v4
+python demo/ask.py --backend mlx
 ```
 
 Training pairs: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs)
 
 ## Publishing
 
-Initial publish to Hugging Face completed **Sep 1, 2026** (see links above). To upload a new adapter revision or refresh the dataset:
+Initial Unsloth publish to Hugging Face completed **Sep 1, 2026**. MLX is a **separate** model repo (do not overwrite the Unsloth adapter).
 
 ```bash
-./scripts/publish_hf.sh
+./scripts/publish_hf.sh         # Unsloth / NVIDIA (eval/run_golden.py)
+./scripts/publish_hf_mlx.sh     # MLX / Apple Silicon (eval/run_golden_mlx.py)
 ```
 
-Requires `.env` with `HF_TOKEN` and `HF_ORG`. Preflight runs leak review, copy-clean check, and golden eval (aborts if below 14/20). Stage only: `python scripts/stage_hf_publish.py --clean`. See [.env.example](.env.example).
+Requires `.env` with `HF_TOKEN` and `HF_ORG`. Preflight runs leak review, copy-clean check, and golden eval (aborts if below 14/20). Unsloth stage only: `python scripts/stage_hf_publish.py --clean`. MLX stage only: `python scripts/stage_hf_publish_mlx.py --clean`. See [.env.example](.env.example).
 
 ## ML stack
 

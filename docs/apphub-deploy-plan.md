@@ -6,7 +6,7 @@
 
 This expert is a **LoRA-adapted Mistral-7B**, not a prompt on Bedrock/OpenAI. AppHub should not load those weights in the Flask process. The app is a thin chat UI; inference stays a sidecar.
 
-Spark Unsloth remains the **publish** artifact. Mac mlx-v4 (`outputs/mlx-mistral7b-mdmp-lora-v4`) is the **laptop demo** artifact. Adapters are not interchangeable. See [spark-vs-mac-training.md](spark-vs-mac-training.md).
+Spark Unsloth remains the **GPU publish** artifact ([mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)). Mac mlx-v4 is the **Mac Hub sidecar** ([mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx)) for laptop demo without local training. Adapters are not interchangeable. See [spark-vs-mac-training.md](spark-vs-mac-training.md).
 
 ## Architecture
 
@@ -133,7 +133,7 @@ AppHost in Docker will not run MLX or Unsloth. A shared tenant needs a **hosted*
 | Where the expert lives | How |
 |------------------------|-----|
 | Spark GPU | vLLM / TGI serving the Unsloth adapter (publish path) |
-| Hugging Face | Adapter + dataset published Sep 1, 2026 ([mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)); optional Inference Endpoint for hosted GPU demo |
+| Hugging Face | Unsloth adapter + dataset published Sep 1, 2026 ([mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)); MLX sidecar ([mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx)); optional Inference Endpoint for hosted GPU demo |
 | Bedrock | custom-model import — not `BEDROCK_MODEL_ID` for stock Llama |
 
 Then set `config.domain` to tenant hostnames when the app should be visible there (leave `[]` until that is intentional).
@@ -152,7 +152,7 @@ Then set `config.domain` to tenant hostnames when the app should be visible ther
 2. Scaffold `feature/mdmp-staff-planning` in apphub; wire OpenAI-compatible client.
 3. Demo on `local-integration` via `./runLocal.sh`.
 4. For a shared demo, serve the **Spark** adapter on GPU and point `LLM_BASE_URL` at that server; keep Mac sidecar for laptop-only use.
-5. Hugging Face adapter publish is **done** (Sep 1, 2026). Optional: Inference Endpoint for a hosted GPU demo, independent of the AppHub UI.
+5. Hugging Face Unsloth adapter publish is **done** (Sep 1, 2026). MLX sidecar is a separate Hub repo (`mistral7b-mdmp-lora-mlx`). Optional: Inference Endpoint for a hosted GPU demo, independent of the AppHub UI.
 
 ## Leak / classification
 

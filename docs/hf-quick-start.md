@@ -8,20 +8,20 @@ Use the published **MDMP Staff Planning Assistant** adapter for inference only. 
 
 | Artifact | URL |
 |----------|-----|
-| LoRA adapter | [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora) |
+| LoRA adapter (NVIDIA / Unsloth) | [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora) |
+| LoRA adapter (Apple Silicon / MLX) | [decisionlens/mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx) |
 | Training pairs (optional) | [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs) |
 
-You only need the **adapter** (~168 MB). The base model (`mistralai/Mistral-7B-Instruct-v0.3`) downloads automatically on first run.
+GPU users only need the Unsloth adapter (~168 MB). Mac users only need the MLX adapter (`adapters.safetensors` + `adapter_config.json`). The matching base model downloads automatically on first run. Adapters are **not interchangeable**.
 
 ## Prerequisites
 
-- **GPU:** NVIDIA with ~5–8 GB VRAM (4-bit inference)
-- **Python:** 3.10+ (3.13 tested on Spark)
-- **CUDA** and `TRITON_PTXAS_PATH` set (see below)
+Pick one stack. Do not mix `requirements-ml.txt` and `requirements-mlx.txt` in the same venv.
 
-Apple Silicon? This adapter targets the Spark/Unsloth stack. Mac users need the separate MLX path — see [README.md](../README.md#mac--mlx-sidecar) (different weights, not interchangeable).
+- **NVIDIA GPU:** ~5–8 GB VRAM (4-bit Unsloth), Python 3.10+, CUDA and `TRITON_PTXAS_PATH`
+- **Apple Silicon:** `mlx-lm` (see Mac section below). Python 3.10+
 
-## Five-minute local chat
+## Five-minute local chat (NVIDIA)
 
 ```bash
 git clone https://github.com/dlens/mdmp-assistant.git
@@ -35,11 +35,34 @@ hf download decisionlens/mistral7b-mdmp-lora --local-dir outputs/mistral7b-mdmp-
 
 export TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas   # adjust if your CUDA install differs
 python demo/ask.py --adapter outputs/mistral7b-mdmp-lora
+# optional browser UI (same GPU stack):
+pip install gradio
+python demo/chat_gradio.py --backend gpu --adapter outputs/mistral7b-mdmp-lora
 ```
 
 Type a question at the `You:` prompt. Empty line or Ctrl+D to quit.
 
-First run downloads the base Mistral-7B weights (~4 GB) in addition to the adapter.
+Omit `--backend` to auto-detect (`gpu` when `nvidia-smi` is present). First run downloads the base Mistral-7B weights (~4 GB) in addition to the adapter.
+
+## Five-minute local chat (Apple Silicon)
+
+No training. Download the MLX adapter (not the Unsloth one):
+
+```bash
+git clone https://github.com/dlens/mdmp-assistant.git
+cd mdmp-assistant
+
+python -m venv .venv-mlx && source .venv-mlx/bin/activate
+pip install -r requirements-mlx.txt huggingface_hub
+
+hf download decisionlens/mistral7b-mdmp-lora-mlx --local-dir outputs/mlx-mistral7b-mdmp-lora-v4
+python demo/ask.py --backend mlx
+# optional browser UI:
+pip install gradio
+python demo/chat_gradio.py --backend mlx
+```
+
+First run downloads `mlx-community/Mistral-7B-Instruct-v0.3-4bit` in addition to the adapter.
 
 ## One question from Python
 
@@ -52,6 +75,18 @@ model, tokenizer = load_model(
     model_name="mistralai/Mistral-7B-Instruct-v0.3",
     adapter_path="outputs/mistral7b-mdmp-lora",
     load_in_4bit=True,
+)
+print(generate_answer(model, tokenizer, "What MDMP step is war gaming?"))
+```
+
+Apple Silicon (`requirements-mlx.txt` venv):
+
+```python
+from train.mlx_inference import load_mlx, generate_answer
+
+model, tokenizer = load_mlx(
+    model_name="mlx-community/Mistral-7B-Instruct-v0.3-4bit",
+    adapter_path="outputs/mlx-mistral7b-mdmp-lora-v4",
 )
 print(generate_answer(model, tokenizer, "What MDMP step is war gaming?"))
 ```
@@ -75,7 +110,7 @@ There is **no hosted try-it-now option** today:
 - No **Hugging Face Space** (browser chat)
 - No **Inference Endpoint** (managed GPU API)
 
-Using the model still requires a local machine (or your own server) with a suitable GPU.
+The Unsloth adapter needs a local NVIDIA GPU (or your own server). The MLX adapter needs Apple Silicon.
 
 ## Coming later (optional)
 
@@ -88,6 +123,8 @@ Track progress in [apphub-deploy-plan.md](apphub-deploy-plan.md). AppHub sidecar
 
 ## More detail
 
-- Model card: [hf-model-card.md](hf-model-card.md)
+- Model card (Unsloth): [hf-model-card.md](hf-model-card.md)
+- Model card (MLX): [hf-model-card-mlx.md](hf-model-card-mlx.md)
 - Full repo README: [README.md](../README.md)
-- Re-publish adapter: [README.md#publishing](../README.md#publishing)
+- Re-publish Unsloth adapter: [README.md#publishing](../README.md#publishing)
+- Re-publish MLX adapter: `./scripts/publish_hf_mlx.sh`

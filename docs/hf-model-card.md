@@ -26,6 +26,7 @@ This is a parameter-efficient fine-tune (LoRA) of [Mistral-7B-Instruct-v0.3](htt
 - **Method:** 4-bit QLoRA via Unsloth / PEFT
 - **Training data:** [mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs) (324 reviewed pairs)
 - **GitHub:** [dlens/mdmp-assistant](https://github.com/dlens/mdmp-assistant)
+- **Apple Silicon sibling:** [mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx) (mlx-lm; not interchangeable)
 
 ## Training hyperparameters
 

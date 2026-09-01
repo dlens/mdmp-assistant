@@ -99,7 +99,7 @@ Val loss on mlx-v4 fell 6.79 → 1.08 at iter 500, then rose to 1.19 at 600. Tha
 1. **Do not copy `train/config.yaml` into `train/mlx_config.yaml` field-for-field.** Translate α → `scale = alpha / rank`, then retune LR. If 4-bit MLX NaNs or emits empty strings, drop LR and raise iters; do not raise `scale` toward 32.
 2. **Compare workloads in example-exposures or optimizer steps × effective batch**, not raw `iters` vs `num_train_epochs`.
 3. **A Spark-matched MLX schedule** (~70 updates, effective batch 8, lr 2e-4) is a useful *ablation*, not a quality target. It failed here. The working Mac recipe is lower LR, all layers, masked chat SFT, ~9 epochs.
-4. **Keep Spark as the artifact to publish** (Hugging Face / GPU serve). Use Mac MLX for laptop iteration and demos. If AppHub or a paper needs one numbered model, quote Spark v7 unless the Mac stack is named explicitly.
+4. **Keep Spark as the GPU publish artifact** ([decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)). MLX v4 is the **Mac Hub sidecar** ([decisionlens/mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx)), not a conversion of the Unsloth adapter. If AppHub or a paper needs one numbered GPU model, quote Spark v7 unless the Mac stack is named explicitly.
 5. **If Mac quality is the goal**, next levers are data (the remaining FASDC / Step 3 / “action” misses), not another 2× iters. Valid loss already turned up at 600.
 6. **If Spark quality is the goal**, extra Mac epochs are optional. Closing Spark’s remaining six golden failures is still a data/scorer problem (`eval/sprint1-summary.md` v7 cycle), not an MLX problem.
 
@@ -112,10 +112,13 @@ python train/finetune.py
 python eval/run_golden.py --adapter outputs/mistral7b-mdmp-lora --label v7
 ```
 
-Mac (local):
+Mac (local train, or Hub download):
 
 ```bash
 python scripts/export_mlx_data.py
 python -m mlx_lm lora -c train/mlx_config.yaml
 python eval/run_golden_mlx.py --adapter outputs/mlx-mistral7b-mdmp-lora-v4 --label mlx-v4
+
+# or, after Hub publish:
+hf download decisionlens/mistral7b-mdmp-lora-mlx --local-dir outputs/mlx-mistral7b-mdmp-lora-v4
 ```

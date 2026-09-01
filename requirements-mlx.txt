@@ -4,3 +4,5 @@
 mlx
 mlx-lm
 pyyaml
+# Optional browser chat: pip install gradio  (demo/chat_gradio.py)
+# Optional Hub download/publish: pip install huggingface_hub

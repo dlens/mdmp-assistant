@@ -23,7 +23,7 @@ Leak-reviewed instruction-tuning pairs for MDMP staff-planning coaching. Public 
 324 human-reviewed `{instruction, input, output}` pairs for fine-tuning a Mistral-7B instruct model on Military Decision-Making Process vocabulary, step boundaries, and coaching responses.
 
 - **GitHub source:** [dlens/mdmp-assistant](https://github.com/dlens/mdmp-assistant)
-- **Model trained on this data:** [mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)
+- **Models trained on this data:** [mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora) (Unsloth / NVIDIA) and [mistral7b-mdmp-lora-mlx](https://huggingface.co/decisionlens/mistral7b-mdmp-lora-mlx) (mlx-lm / Apple Silicon). Adapters are not interchangeable.
 
 ## Fields
 
