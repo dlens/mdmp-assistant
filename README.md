@@ -16,6 +16,7 @@ Open-source fine-tuned LLM for **Military Decision-Making Process** coaching —
 
 **Hugging Face** (initial publish Sep 1, 2026 — Spark Unsloth v7 adapter, 324 reviewed pairs, post-upload golden 14/20):
 
+- **Quick start (inference only):** [docs/hf-quick-start.md](docs/hf-quick-start.md)
 - Model: [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)
 - Dataset: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs)
 
@@ -37,7 +38,7 @@ eval/                golden_questions.json, run_golden.py, run_golden_mlx.py, re
 scripts/             split_data.py, export_mlx_data.py, generate_pairs.py, leak_review.py, copy_clean_check.py, stage_hf_publish.py, publish_hf.sh
 train/               config.yaml, finetune.py, formatting.py, inference.py, mlx_config.yaml, mlx_inference.py
 demo/                ask.py — CLI chat demo
-docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md; hf-model-card.md; hf-dataset-card.md
+docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md; hf-model-card.md; hf-dataset-card.md; hf-quick-start.md
 ```
 
 ## Data workflow
@@ -129,6 +130,8 @@ python demo/ask.py --base               # base Mistral-7B (no adapter)
 Type a question at the `You:` prompt; empty line or Ctrl+D to quit.
 
 ## Download from Hugging Face
+
+See **[docs/hf-quick-start.md](docs/hf-quick-start.md)** for the full inference-only path (no training).
 
 ```bash
 pip install huggingface_hub

@@ -52,6 +52,8 @@ Held-out golden set (20 questions, separate from training data):
 
 Eval script: [eval/run_golden.py](https://github.com/dlens/mdmp-assistant/blob/main/eval/run_golden.py)
 
+**Quick start (inference only, no training):** [hf-quick-start.md](https://github.com/dlens/mdmp-assistant/blob/main/docs/hf-quick-start.md)
+
 ## Usage
 
 Clone the [GitHub repo](https://github.com/dlens/mdmp-assistant), install `requirements-ml.txt`, download this adapter, then:
