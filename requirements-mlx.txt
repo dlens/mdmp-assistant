@@ -1,0 +1,6 @@
+# Apple Silicon MLX sidecar. Do not mix with requirements-ml.txt (Unsloth / CUDA).
+# Install: pip install -r requirements-mlx.txt
+
+mlx
+mlx-lm
+pyyaml

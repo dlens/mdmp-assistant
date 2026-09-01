@@ -1,0 +1,18 @@
+# LoRA fine-tune config — see README.md and docs/paper1-open-mdmp-lora.tex
+model_name: mistralai/Mistral-7B-Instruct-v0.3
+max_seq_length: 2048
+load_in_4bit: true
+
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+
+num_train_epochs: 2
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+warmup_ratio: 0.03
+
+train_file: data/train.jsonl
+eval_file: data/eval.jsonl
+output_dir: outputs/mistral7b-mdmp-lora

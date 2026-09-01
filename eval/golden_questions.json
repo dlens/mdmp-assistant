@@ -1,0 +1,122 @@
+[
+  {
+    "question": "What are the seven steps of MDMP in order?",
+    "must_mention": ["Receipt of Mission", "Mission Analysis", "COA Development", "COA Analysis", "COA Comparison", "COA Approval", "Orders Production"],
+    "must_not_mention": ["where-wins", "Decision Lens"],
+    "expected_sources": ["mdmp_steps.md"]
+  },
+  {
+    "question": "What MDMP step is war gaming?",
+    "must_mention": ["Step 4", "COA Analysis"],
+    "must_not_mention": ["Step 5"],
+    "expected_sources": ["mdmp_steps.md", "war_gaming.md"]
+  },
+  {
+    "question": "At which step do staff compare courses of action against evaluation criteria?",
+    "must_mention": ["Step 5", "COA Comparison"],
+    "must_not_mention": ["war game", "Step 4"],
+    "expected_sources": ["mdmp_steps.md"]
+  },
+  {
+    "question": "Should staff rank COAs during the war game?",
+    "must_mention": ["no", "Step 5"],
+    "must_not_mention": ["compare during war game"],
+    "expected_sources": ["war_gaming.md", "mdmp_steps.md"]
+  },
+  {
+    "question": "What is the purpose of COA screening?",
+    "must_mention": ["Feasible", "Acceptable", "Suitable"],
+    "must_not_mention": [],
+    "expected_sources": ["coa_screening.md"]
+  },
+  {
+    "question": "What does FASDC stand for in COA screening?",
+    "must_mention": ["Feasible", "Acceptable", "Suitable", "Distinguishable", "Complete"],
+    "must_not_mention": [],
+    "expected_sources": ["coa_screening.md"]
+  },
+  {
+    "question": "Name three war-gaming methods.",
+    "must_mention": ["belt", "avenue", "box"],
+    "must_not_mention": [],
+    "expected_sources": ["war_gaming.md"]
+  },
+  {
+    "question": "What is action-reaction-counteraction used for?",
+    "must_mention": ["war game", "synchronization"],
+    "must_not_mention": [],
+    "expected_sources": ["war_gaming.md"]
+  },
+  {
+    "question": "Where are evaluation criteria developed?",
+    "must_mention": ["Mission Analysis", "Step 2"],
+    "must_not_mention": ["Step 5 only"],
+    "expected_sources": ["coa_screening.md", "mdmp_steps.md"]
+  },
+  {
+    "question": "What is a decision matrix used for?",
+    "must_mention": ["COA Comparison", "criteria"],
+    "must_not_mention": [],
+    "expected_sources": ["coa_screening.md", "glossary.md"]
+  },
+  {
+    "question": "What is the difference between COA development and COA analysis?",
+    "must_mention": ["Step 3", "Step 4"],
+    "must_not_mention": [],
+    "expected_sources": ["mdmp_steps.md"]
+  },
+  {
+    "question": "What happens after COA approval?",
+    "must_mention": ["Orders Production", "OPORD"],
+    "must_not_mention": [],
+    "expected_sources": ["mdmp_steps.md", "glossary.md"]
+  },
+  {
+    "question": "What is commander's intent?",
+    "must_mention": ["purpose", "end state"],
+    "must_not_mention": [],
+    "expected_sources": ["glossary.md"]
+  },
+  {
+    "question": "When does the commander select the final course of action?",
+    "must_mention": ["Step 6", "COA Approval"],
+    "must_not_mention": ["Step 5"],
+    "expected_sources": ["mdmp_steps.md"]
+  },
+  {
+    "question": "What product is produced in Step 7?",
+    "must_mention": ["OPORD", "order"],
+    "must_not_mention": [],
+    "expected_sources": ["mdmp_steps.md", "glossary.md"]
+  },
+  {
+    "question": "Can staff compare COAs head-to-head during Step 4?",
+    "must_mention": ["no", "Step 5"],
+    "must_not_mention": [],
+    "expected_sources": ["mdmp_steps.md", "war_gaming.md"]
+  },
+  {
+    "question": "What is a synchronization matrix?",
+    "must_mention": ["war game", "action"],
+    "must_not_mention": [],
+    "expected_sources": ["war_gaming.md", "glossary.md"]
+  },
+  {
+    "question": "What does CCIR mean?",
+    "must_mention": ["Commander", "critical information"],
+    "must_not_mention": [],
+    "expected_sources": ["glossary.md"]
+  },
+  {
+    "question": "What is mission analysis in MDMP?",
+    "must_mention": ["Step 2"],
+    "must_not_mention": [],
+    "expected_sources": ["mdmp_steps.md", "glossary.md"]
+  },
+  {
+    "question": "What is a course of action (COA)?",
+    "must_mention": ["mission", "scheme"],
+    "must_not_mention": [],
+    "expected_sources": ["glossary.md", "coa_screening.md"]
+  }
+]

@@ -1,0 +1,472 @@
+% Paper 1 (Outline A / thesis-adjusted Option 1)
+% MDMP Staff Planning Assistant: open doctrine LoRA adaptation
+%
+% Thesis (locked; paraphrase in body, restate once in Sec.~5.3):
+% A publishable MDMP coaching assistant can be built from open doctrine alone,
+% without proprietary algorithms or customer data, and still substantially
+% outperform a strong general-purpose base model on held-out staff-planning questions.
+%
+% Build: pdflatex paper1-open-mdmp-lora && bibtex paper1-open-mdmp-lora && pdflatex ... && pdflatex ...
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{flafter}
+\usepackage{url}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\title{Open Doctrine, Open Weights:\\
+Fine-Tuning a Publishable MDMP Staff Planning Assistant with LoRA}
+\author{Dr.\ William J.\ L.\ Adams\\
+Decision Lens Inc.}
+\date{}
+
+\begin{document}
+\maketitle
+
+%----------------------------------------------------------------------
+\begin{abstract}
+Staff officers learning the Military Decision-Making Process (MDMP) need reliable
+explanations of its steps, screening criteria, and war-gaming boundaries.
+Many specialized assistants, however, are closed or depend on proprietary methods.
+We ask whether public doctrine and fictional scenarios are sufficient to train an
+open, publishable coaching model.
+The training process excludes customer operational data and proprietary algorithms.
+We then test whether the resulting model can beat a strong general-purpose baseline.
+We construct a leak-reviewed instruction corpus, adapt
+\texttt{Mistral-7B-Instruct-v0.3} with LoRA~\citep{hu2022lora}, and evaluate on
+20 held-out golden questions.
+The untuned base model passes $1/20$ ($5\%$).
+Our best adapter passes $14/20$ ($70\%$).
+The system is an unofficial educational prototype and is not a substitute for
+authoritative Army doctrine~\citep{fm50,adp50}.
+\end{abstract}
+
+%----------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Motivation: MDMP coaching need vs closed/proprietary tooling}
+\label{sec:intro-motivation}
+
+MDMP structures how U.S.\ Army staffs turn missions into courses of action (COAs),
+compare them, and produce orders~\citep{fm50,adp50}.
+Learners and junior planners often need quick, consistent answers about which
+step owns war gaming, when a decision matrix is used, and how FASDC screening
+relates to later comparison.
+Commercial or in-house assistants can help, but when they embed proprietary
+decision algorithms or customer-specific planning data, they cannot be shared
+as open research artifacts.
+Other researchers also cannot reproduce or audit them.
+An open coaching assistant must therefore be built from sources that are safe
+to publish.
+Its training text must not leak product names, customer identifiers, or closed
+methods.
+
+\subsection{Research question: Can open doctrine alone yield a competitive open assistant?}
+\label{sec:intro-rq}
+
+We study whether public doctrine summaries and a fictional training scenario
+suffice to specialize a small open instruct model so that it outperforms the
+same untuned model on held-out MDMP questions.
+Open construction and leak controls need not preclude useful gains over a strong
+general-purpose baseline.
+We answer empirically with a LoRA adapter trained only on reviewed open pairs
+and scored on a golden set that never appears verbatim in training.
+
+\subsection{Contributions}
+\label{sec:intro-contrib}
+\begin{itemize}[leftmargin=*]
+  \item An open MDMP instruction resource grounded in public doctrine markdown
+        and a fictional scenario (OBJ FALCON), totaling 324 reviewed pairs after
+        conflict repair and failure-targeted expansion.
+  \item A leak-review gate that rejects proprietary product terms, customer-tied
+        designations, and related closed\-method vocabulary before training.
+  \item A reproducible LoRA fine-tuning recipe on
+        \texttt{Mistral-7B-Instruct-v0.3}~\citep{mistral7b} (4-bit, Unsloth)
+        suitable for a single modern GPU workstation.
+  \item A 20-question golden evaluation showing the adapter improves from
+        $1/20$ ($5\%$) on the base model to $14/20$ ($70\%$) on the best run.
+\end{itemize}
+
+\subsection{Paper roadmap}
+\label{sec:intro-roadmap}
+
+Section~\ref{sec:related} situates MDMP coaching, LoRA fine-tuning, and open-data
+leakage risks.
+Section~\ref{sec:method} describes publishability constraints, corpus and pair
+construction, training, and golden scoring.
+Section~\ref{sec:results} leads with base versus adapted performance, then
+supporting iteration analyses.
+Section~\ref{sec:discussion} discusses open release, limitations, and responsible use.
+
+%----------------------------------------------------------------------
+\section{Background and related work}
+\label{sec:related}
+
+\subsection{MDMP and staff-planning assistance}
+\label{sec:related-mdmp}
+
+MDMP comprises seven steps~\citep{fm50,adp50}:
+\begin{enumerate}[leftmargin=*]
+  \item Receipt of Mission
+  \item Mission Analysis
+  \item COA Development
+  \item COA Analysis (war gaming)
+  \item COA Comparison
+  \item COA Approval
+  \item Orders Production
+\end{enumerate}
+This paper uses doctrine as factual grounding for instruction tuning.
+
+\subsection{Domain adaptation with LoRA}
+\label{sec:related-lora}
+
+Full fine-tuning of multi-billion-parameter models is costly.
+Parameter-efficient fine-tuning (PEFT) adapts a pretrained model without
+updating all of its weights.
+Low-Rank Adaptation (LoRA) is one PEFT method: it freezes the base weights and
+trains small adapter matrices~\citep{hu2022lora}, enabling domain specialization
+with modest hardware.
+We apply LoRA to an open 7B instruct model~\citep{mistral7b} using 4-bit
+loading and Unsloth tooling as an engineering convenience, not as a claimed
+algorithmic contribution.
+
+\subsection{Open-weight models, public datasets, and leakage risks in specialized domains}
+\label{sec:related-open}
+
+Open weights and public datasets make specialized assistants easier to share.
+However, domain corpora can accidentally include proprietary product names,
+customer units, or closed algorithms.
+Such leakage undermines both legal publishability and scientific
+reproducibility.
+Our pipeline therefore treats leak review as a first-class method step rather
+than a post hoc checklist.
+
+\subsection{Positioning: open doctrine coaching vs proprietary defense NLP}
+\label{sec:related-position}
+
+This work targets a publishable coaching assistant for MDMP vocabulary and
+step boundaries, not a classified planning system or a proprietary decision
+engine.
+We restrict training data to open doctrine summaries and fiction.
+We also filter vocabulary associated with closed methods.
+These controls allow release without exposing customer or commercial IP.
+The evaluation then measures whether this restricted approach beats the
+untuned base model.
+
+%----------------------------------------------------------------------
+\section{Method: an open, publishable adaptation pipeline}
+\label{sec:method}
+
+\subsection{Publishability constraints}
+\label{sec:method-constraints}
+
+Allowed sources are (i)~summaries of publicly described MDMP concepts and
+(ii)~fictional scenarios with no real unit or customer binding.
+Forbidden content includes customer operational data, proprietary algorithm
+or product terminology, and designations that would re-identify closed work.
+A scripted leak review scans training JSONL for forbidden patterns
+(Appendix~\ref{app:leak}) and must pass before each train split.
+These constraints encode the requirement that the assistant remain publishable
+and free of closed IP.
+
+\subsection{Public corpus and fictional scenario design}
+\label{sec:method-corpus}
+
+The corpus includes five doctrine markdown files.
+They cover MDMP steps, war gaming, COA screening, a glossary, and source
+references.
+The sources note points readers to \mbox{FM 5-0}, \mbox{ADP 5-0}, and other
+public references listed in the repository~\citep{fm50,adp50}.
+A single fictional scenario (OBJ FALCON) supplies scenario-coaching examples
+without real-world capture data.
+All instructional claims are treated as educational summaries, not
+authoritative doctrine text.
+
+\subsection{Instruction dataset construction and conflict harmonization}
+\label{sec:method-data}
+
+Pairs follow a JSONL schema with fields
+\texttt{instruction}, \texttt{input}, \texttt{output}, \texttt{bucket},
+\texttt{source}, and \texttt{reviewed}.
+Buckets span MDMP steps, step boundaries, glossary, war gaming, COA screening,
+and scenario coaching.
+Reviewed pairs are split $85\%/15\%$ into train and held-out loss eval files.
+The dataset first grew to roughly 300 pairs.
+A subsequent conflict review removed self-contradictory Step~4/Step~5 guidance
+and added harmonized replacements.
+A later failure-targeted batch raised the corpus to 324 reviewed pairs.
+After the final split, 275 pairs were used for training and 49 for loss
+evaluation.
+Golden questions are never copied verbatim into training files.
+Conflict repair helps keep the open-only dataset internally consistent enough
+for instruction tuning.
+
+\subsection{Model and LoRA training protocol}
+\label{sec:method-train}
+
+We use \texttt{mistralai/Mistral-7B-Instruct-v0.3}~\citep{mistral7b} as the base
+model.
+The choice is deliberate: a 7B open instruct model supports fast LoRA iteration,
+fits in roughly 12\,GB under 4-bit training, and keeps the debug surface small
+while the data and evaluation pipeline are still being proven.
+Larger open models remain available for later quality runs once that pipeline
+is stable.
+We do not claim that 7B is the strongest possible MDMP coach.
+
+We fine-tune this base with LoRA rank $r{=}16$, $\alpha{=}32$, and dropout
+$0.05$.
+Training uses two epochs and a per-device batch size of 2.
+Four gradient-accumulation steps produce an effective batch size of 8.
+The learning rate is $2{\times}10^{-4}$, the sequence length is 2048, and the
+model is loaded in 4-bit form.
+Training ran on an NVIDIA GB10 workstation via Unsloth.
+Prompts use the Mistral instruct format
+\texttt{<s>[INST] \ldots{} [/INST]}.
+Adapters are written to \texttt{outputs/mistral7b-mdmp-lora} for inference and
+evaluation.
+Inference needs less hardware than training: modest GPU memory for 4-bit
+plus LoRA, or CPU after a merged quantized export
+(Table~\ref{tab:hardware}).
+
+\begin{table}[H]
+  \centering
+  \caption{Approximate hardware for training versus running the LoRA-adapted
+  Mistral-7B assistant. Figures are order-of-magnitude guides for single-request
+  use, not formal benchmarks.}
+  \label{tab:hardware}
+  \begin{tabular}{p{0.28\linewidth}p{0.22\linewidth}p{0.38\linewidth}}
+    \toprule
+    Setup & Approx.\ memory & Notes \\
+    \midrule
+    Training (4-bit LoRA / QLoRA) & ${\sim}$12\,GB+ GPU &
+      Used on NVIDIA GB10; not the theoretical minimum \\
+    GPU inference (4-bit + LoRA) & ${\sim}$5--8\,GB VRAM &
+      Current Unsloth/transformers load path \\
+    Comfortable consumer GPU & 8--12\,GB VRAM &
+      Short coaching replies, batch size 1 \\
+    Tight GPU & ${\sim}$6\,GB VRAM &
+      Possible in 4-bit; watch context length \\
+    CPU after merge + quantize & 8--16\,GB system RAM &
+      e.g.\ GGUF / \texttt{llama.cpp}; slower than GPU \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Held-out golden evaluation}
+\label{sec:method-eval}
+
+Product quality is measured with 20 golden questions maintained separately from
+the train/eval JSONL split.
+Each item specifies \texttt{must\_mention} and optional
+\texttt{must\_not\_mention} terms.
+A rule-based scorer marks a pass only when all required terms appear and no
+forbidden terms appear.
+Decode settings are held fixed across base and adapter runs
+(temperature $0.1$, up to 256 new tokens).
+This design tests whether the open-only adapter improves substantive MDMP
+answers relative to the untuned open base model.
+
+%----------------------------------------------------------------------
+\section{Experiments and results}
+\label{sec:results}
+
+\subsection{Setup: base model as the open general-purpose baseline}
+\label{sec:results-setup}
+
+The primary comparison is the same open instruct model with and without the
+LoRA adapter, using identical generation settings and the same 20 golden
+questions.
+The metric is golden pass rate (number of questions that satisfy the
+must-mention rules).
+Training-loss evaluation on the $15\%$ JSONL split is used only as a training
+monitor, not as the product score.
+
+\subsection{Main result: fine-tuned open assistant vs base}
+\label{sec:results-main}
+
+Table~\ref{tab:golden-main} reports the headline result.
+The untuned base model passes $1/20$ ($5\%$).
+Our best adapter (v7) passes $14/20$ ($70\%$).
+That gap is the empirical evidence that an open-doctrine, leak-reviewed LoRA
+adaptation can substantially outperform the general-purpose baseline on
+held-out staff-planning questions.
+
+\begin{table}[t]
+  \centering
+  \caption{Golden-question pass rate on 20 held-out MDMP questions.
+  The base model has no adapter. The fine-tuned run is the best LoRA checkpoint (v7).}
+  \label{tab:golden-main}
+  \begin{tabular}{lcc}
+    \toprule
+    Model & Pass & Rate \\
+    \midrule
+    Base Mistral-7B-Instruct (no adapter) & $1/20$ & $5\%$ \\
+    Fine-tuned LoRA (v7, best run) & $14/20$ & $70\%$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Supporting analyses: data iteration, targeted repair, failure modes}
+\label{sec:results-support}
+
+Table~\ref{tab:golden-progress} summarizes intermediate adapters.
+Early runs with few pairs underperform, while mid-scale runs improve.
+A broad expansion to more pairs (v5) \emph{regressed} relative to v4
+($40\%\rightarrow 35\%$).
+Conflict harmonization (v6) and failure-targeted pairs (v7) recovered and
+exceeded prior peaks ($55\%$ then $70\%$).
+These supporting results do not replace the base-versus-adapted claim.
+They show that open-only data must be curated.
+Volume alone is not enough.
+
+\begin{table}[t]
+  \centering
+  \caption{Golden pass rate across training iterations (same 20 questions).
+  Train pairs are the JSONL split size used for that run.}
+  \label{tab:golden-progress}
+  \begin{tabular}{lccc}
+    \toprule
+    Run & Train pairs & Pass & Rate \\
+    \midrule
+    baseline & n/a & $1/20$ & $5\%$ \\
+    v1 & 42 & $0/20$ & $0\%$ \\
+    v2 & 153 & $5/20$ & $25\%$ \\
+    v3 & 178 & $6/20$ & $30\%$ \\
+    v4 & 203 & $8/20$ & $40\%$ \\
+    v5 & 255 & $7/20$ & $35\%$ \\
+    v6 & 258 & $11/20$ & $55\%$ \\
+    v7 & 275 & $14/20$ & $70\%$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{What remains hard under an open-only regime}
+\label{sec:results-hard}
+
+Six golden items still fail under v7.
+Some answers omit the literal phrase ``Step~$N$,'' such as ``5, COA
+Comparison.''
+Other answers omit FASDC purpose terms or assign criteria development and the
+decision matrix to the wrong steps.
+The scorer is also brittle when it requires ``synchronization'' but the answer
+uses ``synchronize.''
+Open doctrine alone therefore improves competence markedly but does not yet
+guarantee fully robust step phrasing or terminology coverage on every probe.
+
+%----------------------------------------------------------------------
+\section{Discussion and conclusion}
+\label{sec:discussion}
+
+\subsection{Implications for open release}
+\label{sec:discussion-release}
+
+The natural release package has three parts: a LoRA adapter, the reviewed
+instruction dataset, and a model card.
+The model card should document license terms, data scope, leak-review policy,
+and golden scores.
+Training excludes customer data and proprietary algorithm vocabulary.
+The artifacts are therefore suitable for public Hub distribution, subject to
+the base model's license~\citep{mistral7b}.
+They are also practical to try: Table~\ref{tab:hardware} summarizes modest GPU
+requirements and CPU use after a merged, quantized export.
+Official doctrine is cited by reference rather than reproduced wholesale.
+
+\subsection{Limitations and responsible use}
+\label{sec:discussion-limits}
+
+The assistant is unofficial and educational.
+It is not affiliated with the U.S.\ Army and must not replace
+\mbox{FM 5-0} / \mbox{ADP 5-0}~\citep{fm50,adp50}.
+The golden set is small ($n{=}20$), English-only, and U.S.\ MDMP-framed.
+We did not evaluate retrieval-augmented generation, multi-turn staff coaching,
+or classified scenarios.
+Automatic scoring can be brittle to near-synonyms.
+Users should verify any operationally consequential answer against authoritative
+doctrine.
+
+\subsection{Conclusion}
+\label{sec:discussion-conclusion}
+
+We adapted a 7B open instruct model with a leak-reviewed, open-doctrine corpus.
+The LoRA adapter raised held-out MDMP golden accuracy from $5\%$ to $70\%$.
+It did so without proprietary algorithms or customer data.
+This result shows that a publishable coaching assistant is attainable under
+those constraints.
+
+%----------------------------------------------------------------------
+\section*{Acknowledgments}
+We thank colleagues who reviewed training pairs for doctrine consistency and
+leak risk.
+Any errors are the author's alone.
+Opinions expressed are those of the author and do not represent official
+positions of Decision Lens Inc.\ or the U.S.\ Army.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+%----------------------------------------------------------------------
+\appendix
+
+\section{Golden questions}
+\label{app:golden}
+
+The golden set probes step order, war gaming versus comparison, and FASDC
+screening.
+It also covers war-game methods, action-reaction-counteraction, evaluation
+criteria timing, and the decision matrix.
+The remaining questions address COA development, orders products, commander's
+intent, COA approval, synchronization matrices, CCIR, mission analysis, and
+COA definition.
+Full must-mention lists appear in the repository file
+\texttt{eval/golden\_questions.json}.
+
+\section{Training hyperparameters}
+\label{app:hparams}
+
+\begin{table}[h]
+  \centering
+  \caption{LoRA fine-tuning configuration (from \texttt{train/config.yaml}).}
+  \label{tab:hparams}
+  \begin{tabular}{ll}
+    \toprule
+    Parameter & Value \\
+    \midrule
+    Base model & \texttt{mistralai/Mistral-7B-Instruct-v0.3} \\
+    Max sequence length & 2048 \\
+    Load in 4-bit & true \\
+    LoRA $r$ / $\alpha$ / dropout & 16 / 32 / 0.05 \\
+    Epochs & 2 \\
+    Per-device batch size & 2 \\
+    Gradient accumulation & 4 \\
+    Learning rate & $2{\times}10^{-4}$ \\
+    Warmup ratio & 0.03 \\
+    Hardware & NVIDIA GB10 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Leak-review pattern families}
+\label{app:leak}
+
+The leak-review script rejects several high-level pattern families.
+These include proprietary product or platform names tied to closed tooling and
+customer or service abbreviations associated with capture work.
+The script also rejects proprietary analytic vocabulary, such as closed scoring
+or simulation jargon.
+Finally, it rejects real or scenario designations reserved as non-publishable
+relative to the open fictional set.
+Exact regular expressions live in \texttt{scripts/leak\_review.py} and are
+intentionally maintained outside the public narrative listing so that the
+paper describes policy without serving as a bypass guide.
+
+\end{document}

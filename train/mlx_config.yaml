@@ -1,0 +1,43 @@
+# Apple Silicon / mlx-lm sidecar — see README Mac / MLX section.
+# Do not use this file with train/finetune.py (Unsloth / Spark).
+#
+# LoRA scale is NOT Unsloth/PEFT lora_alpha. PEFT applies (alpha / rank);
+# mlx-lm multiplies the update by scale directly. Spark v7 is r=16, alpha=32
+# → MLX scale = 2.0. lr 2e-4 on 4-bit MLX with prompt-masking collapsed (v3).
+# v4 keeps Spark rank/scale/layers but uses a lower LR and more steps.
+
+model: mlx-community/Mistral-7B-Instruct-v0.3-4bit
+train: true
+data: data/mlx
+adapter_path: outputs/mlx-mistral7b-mdmp-lora-v4
+batch_size: 1
+grad_accumulation_steps: 4
+num_layers: -1
+iters: 600
+learning_rate: 5.0e-5
+max_seq_length: 2048
+fine_tune_type: lora
+grad_checkpoint: true
+mask_prompt: true
+optimizer: adamw
+seed: 42
+steps_per_eval: 100
+val_batches: -1
+save_every: 100
+lr_schedule:
+  name: cosine_decay
+  warmup: 20
+  warmup_init: 1.0e-6
+  arguments: [5.0e-5, 600, 5.0e-6]
+lora_parameters:
+  rank: 16
+  dropout: 0.05
+  scale: 2.0
+  keys:
+    - self_attn.q_proj
+    - self_attn.k_proj
+    - self_attn.v_proj
+    - self_attn.o_proj
+    - mlp.gate_proj
+    - mlp.up_proj
+    - mlp.down_proj

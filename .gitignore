@@ -1,0 +1,15 @@
+outputs/
+__pycache__/
+*.pyc
+.cache/
+.huggingface/
+*.gguf
+*.safetensors
+.adapters/
+unsloth_compiled_cache/
+data/pairs_suggested.jsonl
+data/mlx/
+eval/reports/*.json
+docs/expert-review-packet.zip
+.venv*/
+.env
