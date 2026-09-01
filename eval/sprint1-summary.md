@@ -18,7 +18,7 @@ Sprint 1 delivered a working fine-tuning and evaluation pipeline, a 303-pair rev
 | Fine-tuned beats baseline | Yes | **Yes** (55% vs 5%) |
 | Golden pass rate | ≥70% | **55%** (v6) |
 | Local demo | CLI chat | **Done** (`demo/ask.py`) |
-| Public v0.1 (HF publish) | Week of Aug 4 | **Not started** |
+| Public v0.1 (HF publish) | Week of Aug 4 | **Deferred at sprint close; completed Sep 1, 2026** (see below) |
 
 ---
 
@@ -176,7 +176,7 @@ From `train/config.yaml`:
 | Fine-tuned beats base on golden set | Yes (+50 pp vs baseline) |
 | ≥70% golden pass | **No** (55%) |
 | Leak-review clean | Yes |
-| Hugging Face publish | No (deferred to public v0.1) |
+| Hugging Face publish | No at sprint close (deferred); **yes Sep 1, 2026** |
 
 ---
 
@@ -188,7 +188,7 @@ From `train/config.yaml`:
 4. **Retrain (v7)** and re-run golden eval; target ≥70% sprint / ≥80% public v0.1  
 5. **Update README** golden-eval table to reflect v6 as current best  
 6. **Commit** harmonized pairs + sprint1 summary  
-7. **HF publish** — model card, dataset, adapter weights (public v0.1 milestone)
+7. ~~**HF publish** — model card, dataset, adapter weights (public v0.1 milestone)~~ **Done Sep 1, 2026**
 
 ---
 
@@ -246,3 +246,22 @@ python scripts/leak_review.py data/pairs.jsonl data/train.jsonl data/eval.jsonl
 **v7 report:** `eval/reports/v7_20260803T160101Z.json`
 
 **Next for public v0.1 (≥80%):** Fix 6 remaining failures; consider scorer tweak for `synchronize`/`synchronization`; expand golden set to 25–30 after stable pass on original 20.
+
+---
+
+## Public v0.1 — Hugging Face (Sep 1, 2026)
+
+Initial publish completed after v7 training. Adapter and dataset are live under the `decisionlens` org:
+
+| Artifact | URL |
+|----------|-----|
+| LoRA adapter (Spark Unsloth v7) | https://huggingface.co/decisionlens/mistral7b-mdmp-lora |
+| Training pairs (324 reviewed) | https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs |
+
+| Check | Result |
+|-------|--------|
+| Preflight golden (local v7) | 15/20 |
+| Post-upload golden (HF download) | 14/20 |
+| Publish tooling | `scripts/stage_hf_publish.py`, `scripts/publish_hf.sh` |
+
+Re-publish: `./scripts/publish_hf.sh` (see [README.md](../README.md#publishing)).

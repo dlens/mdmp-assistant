@@ -1,6 +1,6 @@
 # AppHub deploy plan — MDMP Staff Planning Assistant
 
-**Updated:** 2026-08-18  
+**Updated:** 2026-09-01  
 **Status:** plan only; no AppHub app exists yet  
 **Target repo:** `apphub` (`apps/<name>/` Flask blueprints on AppHost)
 
@@ -133,7 +133,7 @@ AppHost in Docker will not run MLX or Unsloth. A shared tenant needs a **hosted*
 | Where the expert lives | How |
 |------------------------|-----|
 | Spark GPU | vLLM / TGI serving the Unsloth adapter (publish path) |
-| Hugging Face | upload adapter, then Inference Endpoint (public v0.1, still pending) |
+| Hugging Face | Adapter + dataset published Sep 1, 2026 ([mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)); optional Inference Endpoint for hosted GPU demo |
 | Bedrock | custom-model import — not `BEDROCK_MODEL_ID` for stock Llama |
 
 Then set `config.domain` to tenant hostnames when the app should be visible there (leave `[]` until that is intentional).
@@ -152,7 +152,7 @@ Then set `config.domain` to tenant hostnames when the app should be visible ther
 2. Scaffold `feature/mdmp-staff-planning` in apphub; wire OpenAI-compatible client.
 3. Demo on `local-integration` via `./runLocal.sh`.
 4. For a shared demo, serve the **Spark** adapter on GPU and point `LLM_BASE_URL` at that server; keep Mac sidecar for laptop-only use.
-5. Hugging Face publish of the Spark adapter is still the public v0.1 milestone, independent of the AppHub UI.
+5. Hugging Face adapter publish is **done** (Sep 1, 2026). Optional: Inference Endpoint for a hosted GPU demo, independent of the AppHub UI.
 
 ## Leak / classification
 

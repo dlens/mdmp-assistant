@@ -12,9 +12,10 @@ Open-source fine-tuned LLM for **Military Decision-Making Process** coaching —
 | Data + baseline + v4 train (40% golden) | Jul 29 | Done |
 | Training data expanded to 303 pairs (harmonized) | Jul 31 | Done |
 | Sprint MVP — LoRA + demo | Aug 1 | Done (v7: 70% golden; baseline 5%) |
-| Public v0.1 — Hugging Face | Week of Aug 4 | Done |
+| Public v0.1 — Hugging Face | Week of Aug 4 | Done (initial publish Sep 1, 2026) |
 
-**Hugging Face:**
+**Hugging Face** (initial publish Sep 1, 2026 — Spark Unsloth v7 adapter, 324 reviewed pairs, post-upload golden 14/20):
+
 - Model: [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)
 - Dataset: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs)
 
@@ -141,13 +142,13 @@ Training pairs: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/
 
 ## Publishing
 
-Re-publish adapter + dataset (requires `.env` with `HF_TOKEN` and `HF_ORG`):
+Initial publish to Hugging Face completed **Sep 1, 2026** (see links above). To upload a new adapter revision or refresh the dataset:
 
 ```bash
 ./scripts/publish_hf.sh
 ```
 
-Preflight runs leak review, copy-clean check, and golden eval (aborts if below 14/20). Stage only: `python scripts/stage_hf_publish.py --clean`. See [.env.example](.env.example).
+Requires `.env` with `HF_TOKEN` and `HF_ORG`. Preflight runs leak review, copy-clean check, and golden eval (aborts if below 14/20). Stage only: `python scripts/stage_hf_publish.py --clean`. See [.env.example](.env.example).
 
 ## ML stack
 
