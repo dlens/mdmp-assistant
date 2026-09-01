@@ -12,7 +12,11 @@ Open-source fine-tuned LLM for **Military Decision-Making Process** coaching —
 | Data + baseline + v4 train (40% golden) | Jul 29 | Done |
 | Training data expanded to 303 pairs (harmonized) | Jul 31 | Done |
 | Sprint MVP — LoRA + demo | Aug 1 | Done (v7: 70% golden; baseline 5%) |
-| Public v0.1 — Hugging Face | Week of Aug 4 | Pending (adapter weights) |
+| Public v0.1 — Hugging Face | Week of Aug 4 | Done |
+
+**Hugging Face:**
+- Model: [decisionlens/mistral7b-mdmp-lora](https://huggingface.co/decisionlens/mistral7b-mdmp-lora)
+- Dataset: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs)
 
 **Sprint 1 summary:** [eval/sprint1-summary.md](eval/sprint1-summary.md)
 
@@ -29,10 +33,10 @@ corpus/doctrine/     Public MDMP reference markdown
 corpus/scenarios/    Fictional training scenarios
 data/                pairs.jsonl (source of truth), train.jsonl, eval.jsonl
 eval/                golden_questions.json, run_golden.py, run_golden_mlx.py, reports/
-scripts/             split_data.py, export_mlx_data.py, generate_pairs.py, leak_review.py, copy_clean_check.py
+scripts/             split_data.py, export_mlx_data.py, generate_pairs.py, leak_review.py, copy_clean_check.py, stage_hf_publish.py, publish_hf.sh
 train/               config.yaml, finetune.py, formatting.py, inference.py, mlx_config.yaml, mlx_inference.py
 demo/                ask.py — CLI chat demo
-docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md
+docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md; hf-model-card.md; hf-dataset-card.md
 ```
 
 ## Data workflow
@@ -122,6 +126,28 @@ python demo/ask.py --base               # base Mistral-7B (no adapter)
 ```
 
 Type a question at the `You:` prompt; empty line or Ctrl+D to quit.
+
+## Download from Hugging Face
+
+```bash
+pip install huggingface_hub
+hf download decisionlens/mistral7b-mdmp-lora --local-dir outputs/mistral7b-mdmp-lora
+
+export TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas
+python demo/ask.py --adapter outputs/mistral7b-mdmp-lora
+```
+
+Training pairs: [decisionlens/mdmp-staff-planning-pairs](https://huggingface.co/datasets/decisionlens/mdmp-staff-planning-pairs)
+
+## Publishing
+
+Re-publish adapter + dataset (requires `.env` with `HF_TOKEN` and `HF_ORG`):
+
+```bash
+./scripts/publish_hf.sh
+```
+
+Preflight runs leak review, copy-clean check, and golden eval (aborts if below 14/20). Stage only: `python scripts/stage_hf_publish.py --clean`. See [.env.example](.env.example).
 
 ## ML stack
 
