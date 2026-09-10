@@ -11,10 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-DEFAULT_ADAPTER = Path(
-    "/home/wjadams/Documents/bitbucket/rddocs/papers/2026/"
-    "mdmp-staff-planning-assistant/outputs/mistral7b-mdmp-lora"
-)
+DEFAULT_ADAPTER = ROOT / "outputs" / "mistral7b-mdmp-lora"
 
 MODEL_FILES = (
     "adapter_config.json",

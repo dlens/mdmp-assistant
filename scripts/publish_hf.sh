@@ -8,7 +8,6 @@ cd "$ROOT"
 
 GOLDEN_MIN_PASSED=14
 ADAPTER="${ADAPTER:-outputs/mistral7b-mdmp-lora}"
-DEFAULT_SOURCE_ADAPTER="/home/wjadams/Documents/bitbucket/rddocs/papers/2026/mdmp-staff-planning-assistant/outputs/mistral7b-mdmp-lora"
 MODEL_REPO="${MODEL_REPO:-mistral7b-mdmp-lora}"
 DATASET_REPO="${DATASET_REPO:-mdmp-staff-planning-pairs}"
 SKIP_PREFLIGHT="${SKIP_PREFLIGHT:-0}"
@@ -37,15 +36,15 @@ fi
 export TRITON_PTXAS_PATH="${TRITON_PTXAS_PATH:-/usr/local/cuda/bin/ptxas}"
 
 echo "== Preflight: leak review =="
-python scripts/leak_review.py data/pairs.jsonl data/train.jsonl data/eval.jsonl
+python scripts/leak_review.py --tree data/pairs.jsonl data/train.jsonl data/eval.jsonl
 
 echo "== Preflight: copy-clean check =="
 python scripts/copy_clean_check.py
 
 if [[ ! -e "$ADAPTER/adapter_model.safetensors" ]]; then
-  echo "Linking adapter from ${DEFAULT_SOURCE_ADAPTER}"
-  mkdir -p outputs
-  ln -sfn "$DEFAULT_SOURCE_ADAPTER" "$ADAPTER"
+  echo "ERROR: adapter not found at ${ADAPTER}" >&2
+  echo "Train first or set ADAPTER= to an existing Unsloth adapter directory." >&2
+  exit 1
 fi
 
 PREFLIGHT_REPORT="eval/reports/v7-pre-publish.json"
@@ -76,7 +75,7 @@ else
 fi
 
 echo "== Stage artifacts =="
-python scripts/stage_hf_publish.py --adapter "$DEFAULT_SOURCE_ADAPTER" --clean
+python scripts/stage_hf_publish.py --adapter "$ADAPTER" --clean
 
 if [[ "$SKIP_UPLOAD" == "1" ]]; then
   echo "SKIP_UPLOAD=1 — staging complete, upload skipped"

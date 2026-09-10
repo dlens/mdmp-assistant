@@ -55,7 +55,7 @@ Leak-reviewed instruction-tuning pairs for MDMP staff-planning coaching. Public 
 
 Before inclusion, each pair is checked for:
 
-- Customer names, OPNAV, or real unit designations
+- Customer names or real unit designations tied to capture work
 - Proprietary algorithm or product terms
 - Verbatim golden-eval questions (held out in `eval/golden_questions.json` on GitHub)
 

@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 FORBIDDEN_NAME_FRAGMENTS = (
     "expert-review",
     "overlay.jsonl",
+    "apphub-deploy-plan",
 )
 
 SKIP_DIR_NAMES = {
@@ -20,6 +21,7 @@ SKIP_DIR_NAMES = {
     ".venv-mlx",
     "__pycache__",
     "outputs",
+    "staging",
     "node_modules",
 }
 
@@ -50,6 +52,7 @@ def main() -> int:
 
     for path in (
         root / "docs" / "expert-review",
+        root / "docs" / "apphub-deploy-plan.md",
         root / "data" / "overlay.jsonl",
         root / "corpus" / "proprietary",
     ):

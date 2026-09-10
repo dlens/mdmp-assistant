@@ -119,8 +119,6 @@ The Unsloth adapter needs a local NVIDIA GPU (or your own server). The MLX adapt
 | HF Space | Browser demo without local GPU setup |
 | HF Inference Endpoint | API access for apps and integrations |
 
-Track progress in [apphub-deploy-plan.md](apphub-deploy-plan.md). AppHub sidecar deployment is separate from HF hosting.
-
 ## More detail
 
 - Model card (Unsloth): [hf-model-card.md](hf-model-card.md)

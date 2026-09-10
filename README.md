@@ -25,8 +25,6 @@ Open-source fine-tuned LLM for **Military Decision-Making Process** coaching —
 
 **Spark vs Mac training (iters, scale, implications):** [docs/spark-vs-mac-training.md](docs/spark-vs-mac-training.md)
 
-**AppHub deploy plan:** [docs/apphub-deploy-plan.md](docs/apphub-deploy-plan.md)
-
 ## Layout
 
 ```text
@@ -37,7 +35,7 @@ eval/                golden_questions.json, run_golden.py, run_golden_mlx.py, re
 scripts/             split_data.py, export_mlx_data.py, generate_pairs.py, leak_review.py, copy_clean_check.py, stage_hf_publish.py, publish_hf.sh, stage_hf_publish_mlx.py, publish_hf_mlx.sh
 train/               config.yaml, finetune.py, formatting.py, inference.py, mlx_config.yaml, mlx_inference.py
 demo/                ask.py (CLI), chat_gradio.py (browser); GPU or MLX via --backend
-docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; apphub-deploy-plan.md; hf-model-card.md; hf-model-card-mlx.md; hf-dataset-card.md; hf-quick-start.md
+docs/                paper1-open-mdmp-lora.tex; spark-vs-mac-training.md; hf-model-card.md; hf-model-card-mlx.md; hf-dataset-card.md; hf-quick-start.md
 ```
 
 ## Data workflow
@@ -52,7 +50,8 @@ python scripts/generate_pairs.py
 python scripts/split_data.py
 
 # Leak review before commit
-python scripts/leak_review.py data/pairs.jsonl data/train.jsonl
+python scripts/leak_review.py --tree data/pairs.jsonl data/train.jsonl
+python scripts/copy_clean_check.py
 ```
 
 Golden questions in `eval/golden_questions.json` stay separate and must never appear verbatim in training files.
@@ -116,7 +115,7 @@ python eval/run_golden_mlx.py --label mlx-baseline
 python eval/run_golden_mlx.py --adapter outputs/mlx-mistral7b-mdmp-lora-v4 --label mlx-v4
 ```
 
-Hyperparameters live in `train/mlx_config.yaml`. Export writes `data/mlx/train.jsonl` and `data/mlx/valid.jsonl` (generated; gitignored). Why Mac used 600 iters vs Spark’s ~70 updates: [docs/spark-vs-mac-training.md](docs/spark-vs-mac-training.md). Serving this adapter from AppHub: [docs/apphub-deploy-plan.md](docs/apphub-deploy-plan.md).
+Hyperparameters live in `train/mlx_config.yaml`. Export writes `data/mlx/train.jsonl` and `data/mlx/valid.jsonl` (generated; gitignored). Why Mac used 600 iters vs Spark’s ~70 updates: [docs/spark-vs-mac-training.md](docs/spark-vs-mac-training.md).
 
 ## Demo
 
@@ -187,8 +186,9 @@ Mac sidecar (separate venv): `pip install -r requirements-mlx.txt`
 
 ## Pre-commit leak checklist
 
-- [ ] No customer names, OPNAV, or real unit designations tied to capture work
+- [ ] No customer names or real unit designations tied to capture work
 - [ ] No proprietary algorithm or product terms (see `scripts/leak_review.py`)
 - [ ] Scenario is fictional or purely doctrinal
 - [ ] Golden questions not copied verbatim into `train.jsonl`
+- [ ] `python scripts/leak_review.py --tree` — tracked docs/code pass the same leak gate
 - [ ] `python scripts/copy_clean_check.py` — no expert-review packet, overlay, or proprietary corpus

@@ -9,7 +9,6 @@ cd "$ROOT"
 
 GOLDEN_MIN_PASSED=14
 ADAPTER="${ADAPTER:-outputs/mlx-mistral7b-mdmp-lora-v4}"
-DEFAULT_SOURCE_ADAPTER="${DEFAULT_SOURCE_ADAPTER:-/Users/wjadams/Repos/bitbucket/rddocs/papers/2026/mdmp-staff-planning-assistant/outputs/mlx-mistral7b-mdmp-lora-v4}"
 MODEL_REPO="${MODEL_REPO:-mistral7b-mdmp-lora-mlx}"
 SKIP_PREFLIGHT="${SKIP_PREFLIGHT:-0}"
 SKIP_UPLOAD="${SKIP_UPLOAD:-0}"
@@ -35,16 +34,10 @@ if [[ -z "${HF_ORG:-}" ]]; then
 fi
 
 echo "== Preflight: leak review =="
-python scripts/leak_review.py data/pairs.jsonl data/train.jsonl data/eval.jsonl
+python scripts/leak_review.py --tree data/pairs.jsonl data/train.jsonl data/eval.jsonl
 
 echo "== Preflight: copy-clean check =="
 python scripts/copy_clean_check.py
-
-if [[ ! -e "$ADAPTER/adapters.safetensors" ]]; then
-  echo "Linking MLX adapter from ${DEFAULT_SOURCE_ADAPTER}"
-  mkdir -p outputs
-  ln -sfn "$DEFAULT_SOURCE_ADAPTER" "$ADAPTER"
-fi
 
 if [[ ! -e "$ADAPTER/adapters.safetensors" ]]; then
   echo "ERROR: MLX adapter not found at ${ADAPTER}" >&2

@@ -15,10 +15,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_ADAPTER = ROOT / "outputs" / "mlx-mistral7b-mdmp-lora-v4"
-FALLBACK_ADAPTER = Path(
-    "/Users/wjadams/Repos/bitbucket/rddocs/papers/2026/"
-    "mdmp-staff-planning-assistant/outputs/mlx-mistral7b-mdmp-lora-v4"
-)
 
 MODEL_FILES = (
     "adapter_config.json",
@@ -31,8 +27,6 @@ STAGING_MODEL = ROOT / "staging" / "hf-model-mlx"
 def resolve_source(adapter: Path) -> Path:
     if adapter.is_dir():
         return adapter
-    if adapter == DEFAULT_ADAPTER and FALLBACK_ADAPTER.is_dir():
-        return FALLBACK_ADAPTER
     raise FileNotFoundError(f"Adapter directory not found: {adapter}")
 
 
