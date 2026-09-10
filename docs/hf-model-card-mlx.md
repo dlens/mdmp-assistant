@@ -88,8 +88,10 @@ Generation defaults (match golden eval): `temperature=0.1`, `top_p=0.9`, `max_ne
 ## Limitations
 
 - Small golden eval set (n=20), English-only, U.S. MDMP framing
+- **Prompt fragility:** high golden pass rate does not imply robustness to paraphrase. Informal checks show truncated or off-by-one step answers on near-miss wording (e.g. “What are the steps of MDMP?” vs the golden “seven steps … in order”; “What is step 5/7?” mapping to adjacent steps). A RAG control over the same public doctrine corpus is more stable for factual step lookup; this artifact is LoRA-only.
 - Coaching assistant only — not operational planning or classified scenarios
 - Not interchangeable with the Unsloth adapter on Hugging Face
+- Automatic scoring can be brittle to near-synonyms (e.g. "synchronization" vs "synchronize")
 - Users must verify operationally consequential answers against authoritative doctrine
 
 ## License

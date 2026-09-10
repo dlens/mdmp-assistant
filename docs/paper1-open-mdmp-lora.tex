@@ -388,8 +388,15 @@ The assistant is unofficial and educational.
 It is not affiliated with the U.S.\ Army and must not replace
 \mbox{FM 5-0} / \mbox{ADP 5-0}~\citep{fm50,adp50}.
 The golden set is small ($n{=}20$), English-only, and U.S.\ MDMP-framed.
-We did not evaluate retrieval-augmented generation, multi-turn staff coaching,
-or classified scenarios.
+A high golden pass rate does not imply robustness to paraphrase:
+informal probes with near-miss wording (for example asking for ``the steps of MDMP''
+rather than the golden ``seven steps \ldots\ in order'', or ``What is step~5/7?'')
+produced truncated lists and off-by-one step answers even when the corresponding
+golden items passed.
+A retrieval-augmented control that grounds generation in the same public
+doctrine corpus was more stable on those factual lookups; that comparison was
+not a full head-to-head benchmark and is not part of the published LoRA release.
+We did not formally evaluate multi-turn staff coaching or classified scenarios.
 Automatic scoring can be brittle to near-synonyms.
 Users should verify any operationally consequential answer against authoritative
 doctrine.

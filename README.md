@@ -143,6 +143,12 @@ python demo/chat_gradio.py                 # auto-detect gpu vs mlx
 python demo/chat_gradio.py --backend mlx
 ```
 
+## Limitations (demo behavior)
+
+Golden pass rate measures a fixed 20-question set. The LoRA adapter is **prompt-fragile**: close paraphrases of those questions can fail even when the golden wording passes. Typical slips include listing only the first MDMP step when asked for all steps, or answering adjacent steps (e.g. Step 5 → Step 4 war-gaming content; Step 7 → Step 6 COA approval).
+
+A retrieval-augmented (RAG) control that grounds answers in the same public doctrine corpus is more robust to rephrasing for factual step lookup. This repo ships the **fine-tuned adapter only**; RAG is a separate stack and is not included here. Prefer exact golden-style prompts for demos, or verify answers against FM 5-0 / ADP 5-0.
+
 ## Download from Hugging Face
 
 See **[docs/hf-quick-start.md](docs/hf-quick-start.md)** for the full inference-only path (no training).
